@@ -1,8 +1,7 @@
       ******************************************************************
       * Author: Josiah Basilio & Matthew Christian
-      * Date: Mar 21, 2025
-      * Purpose: Project 2, read Investment records
-      * and Stock Symbol records from external files.
+      * Date: April 17, 2025
+      * Purpose: Project 3
       * Tectonics: cobc
       ******************************************************************
        IDENTIFICATION DIVISION.
