@@ -1,10 +1,11 @@
       ******************************************************************
       * Author(s): Josiah Basilio, Matthew Christian
       * Date: March 21, 2025
-      * Purpose:
+      * Purpose: Re-run the report program with COPY + CALL requirements
       ******************************************************************
        IDENTIFICATION DIVISION.
        PROGRAM-ID. PROJECT3_PROGRAM3.
+
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -38,22 +39,14 @@
 
        WORKING-STORAGE SECTION.
        01 CONTROL-FIELDS.
-           *>   Character to indicate the end of a file.
            05 EOF-FLAG-88 PIC A VALUE "N".
                88 NEOF VALUE "N".
                88 EOF VALUE "Y".
-           05 EOF-FLAG PIC A.
+           05 EOF-FLAG PIC A VALUE "N".
            05 SUB-1 PIC 9(2).
            05 FOUND-FLAG PIC A.
 
-
        COPY ".\STOCK_TABLE_COPY.txt".
-
-      *>  01 TABLE-FIELDS.
-      *>      05 STOCK-TABLE OCCURS 20 TIMES.
-      *>          10 STOCK-SYM-IN-TBL PIC X(7).
-      *>          10 STOCK-NAME-IN-TBL PIC X(25).
-      *>          10 CLOSING-PRICE-IN-TBL PIC 9(4)V99.
 
        01 CALC-FIELDS.
            05 UNIT-COST-CALC PIC S9(4)V99.
@@ -108,7 +101,7 @@
            PERFORM 201-INITALIZE.
            PERFORM 202-PRODUCE-ONE-STOCK-REC UNTIL EOF-FLAG = "Y".
            PERFORM 203-TERMINATE.
-            STOP RUN.
+           STOP RUN.
 
        201-INITALIZE.
            PERFORM 301-OPEN-FILES.
@@ -120,14 +113,15 @@
        202-PRODUCE-ONE-STOCK-REC.
            PERFORM 305-SEARCH-STOCK-TABLE VARYING SUB-1 FROM 1 BY 1
                UNTIL SUB-1 > 20 OR FOUND-FLAG = "Y".
-           PERFORM 306-CALC-PORTFOLIO-VALUE.
-           PERFORM 307-WRITE-REPORT-RECORD.
+           PERFORM 306-CALC-PORTFOLIO-VALUE. *>CALL used to calc
+           PERFORM 307-MOVE-CALCULATED-FIELDS.*> Added Move
+           PERFORM 308-WRITE-REPORT-RECORD.
            PERFORM 304-READ-PORTFOLIO-RECORD.
 
        203-TERMINATE.
-           PERFORM 308-WRITE-FOOTER.
-           PERFORM 309-WRITE-AUDIT-TRAIL.
-           PERFORM 310-CLOSE-FILE.
+           PERFORM 309-WRITE-FOOTER.
+           PERFORM 310-WRITE-AUDIT-TRAIL.
+           PERFORM 311-CLOSE-FILE.
 
        301-OPEN-FILES.
            OPEN INPUT STOCK-FILE-IN PORTFOLIO-FILE-IN.
@@ -163,25 +157,31 @@
            END-IF.
 
        306-CALC-PORTFOLIO-VALUE.
-           COMPUTE COST-BASE-CALC = NUM-SHARES-CALC * UNIT-COST-CALC.
-           MOVE COST-BASE-CALC TO COST-BASE-OUT.
-           COMPUTE MARKET-VALUE-CALC = NUM-SHARES-CALC * AT-CLOSING-CALC.
-           MOVE MARKET-VALUE-CALC TO MARKET-VALUE-OUT.
-           COMPUTE GAIN-LOST-CALC = MARKET-VALUE-CALC - COST-BASE-CALC.
-           MOVE GAIN-LOST-CALC TO GAIN-LOST-OUT.
+           CALL 'CALCPORTFOLIO' USING
+               COST-BASE-CALC,
+               MARKET-VALUE-CALC,
+               GAIN-LOST-CALC,
+               NUM-SHARES-CALC,
+               UNIT-COST-CALC,
+               AT-CLOSING-CALC.   *>External call for calculation
 
-       307-WRITE-REPORT-RECORD.
+       307-MOVE-CALCULATED-FIELDS. *> Placement of result moves
+           MOVE COST-BASE-CALC     TO COST-BASE-OUT.
+           MOVE MARKET-VALUE-CALC  TO MARKET-VALUE-OUT.
+           MOVE GAIN-LOST-CALC     TO GAIN-LOST-OUT.
+
+       308-WRITE-REPORT-RECORD.
            WRITE REPORT-LINE-OUT FROM REPORT-RECORD-OUT.
            ADD 1 TO WRITE-CTR.
 
-       308-WRITE-FOOTER.
+       309-WRITE-FOOTER.
            WRITE REPORT-LINE-OUT FROM HEADER-LINE.
 
-       309-WRITE-AUDIT-TRAIL.
+       310-WRITE-AUDIT-TRAIL.
            WRITE REPORT-LINE-OUT FROM AUDIT-LINE-OUT
                AFTER ADVANCING 1 LINE.
 
-       310-CLOSE-FILE.
+       311-CLOSE-FILE.
            CLOSE STOCK-FILE-IN PORTFOLIO-FILE-IN REPORT-FILE-OUT.
 
        END PROGRAM PROJECT3_PROGRAM3.
