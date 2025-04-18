@@ -46,11 +46,14 @@
            05 SUB-1 PIC 9(2).
            05 FOUND-FLAG PIC A.
 
-       01 TABLE-FIELDS.
-           05 STOCK-TABLE OCCURS 20 TIMES.
-               10 STOCK-SYM-IN-TBL PIC X(7).
-               10 STOCK-NAME-IN-TBL PIC X(25).
-               10 CLOSING-PRICE-IN-TBL PIC 9(4)V99.
+
+       COPY ".\STOCK_TABLE_COPY.txt".
+
+      *>  01 TABLE-FIELDS.
+      *>      05 STOCK-TABLE OCCURS 20 TIMES.
+      *>          10 STOCK-SYM-IN-TBL PIC X(7).
+      *>          10 STOCK-NAME-IN-TBL PIC X(25).
+      *>          10 CLOSING-PRICE-IN-TBL PIC 9(4)V99.
 
        01 CALC-FIELDS.
            05 UNIT-COST-CALC PIC S9(4)V99.
