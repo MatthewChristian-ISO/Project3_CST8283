@@ -1,0 +1,5 @@
+	   01 TABLE-FIELDS.
+           05 STOCK-TABLE OCCURS 20 TIMES.
+               10 STOCK-SYM-IN-TBL PIC X(7).
+               10 STOCK-NAME-IN-TBL PIC X(25).
+               10 CLOSING-PRICE-IN-TBL PIC 9(4)V99.
